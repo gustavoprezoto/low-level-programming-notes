@@ -21,15 +21,15 @@ string_length:
 
     xor rax, rax ; zera o registrador
 
-    .loop:
-        cmp byte[rdi+rax], 0    ; compara o byte com o ascii \0
-        je .end                 ; pula pra end se o cmp for igual. (eflags)
-        inc rax                 
+.loop:
+    cmp byte[rdi+rax], 0    ; compara o byte com o ascii \0
+    je .end                 ; pula pra end se o cmp for igual. (eflags)
+    inc rax                 
 
-        jmp .loop               ; volta pro inicio do loop
+    jmp .loop               ; volta pro inicio do loop
 
-    .end:
-        ret                     ; retorna em rax
+.end:
+    ret                     ; retorna em rax
 
 print_string:
     call string_length
