@@ -1,9 +1,9 @@
-;useful stuff:
-;procedure args order: rdi, rsi, rdx, rcx, r8 and r9
+;coisas úteis:
+;ordem dos parametros de um rotina: rdi, rsi, rdx, rcx, r8 e r9
 ;callee saved: rbx, rbp, rsp, r12-r15 (pela rotina) - se houver necessidade
 ;caller saved: others (por quem chama a rotina) - se houver necessidade
 ;syscall args: rdi, rsi, rdx, r10, r8 and r9
-;syscall number: rax 
+;numero da syscall: rax 
 ;rax armazena o valor do retorno de uma rotina
 
 section .data
@@ -13,8 +13,8 @@ minus_sign: db 0x2D ; ascii 45 ou 0x2D == -
 section .text
 
 exit:
-    mov rax, 60 ; syscall exit number
-    xor rdi, rdi ; defining rdi to 0 (exit code)
+    mov rax, 60 ; número da syscall de exit
+    xor rdi, rdi ; definindo rdi como 0 (código de saída 0)
     syscall
 
 string_length:
@@ -33,60 +33,60 @@ string_length:
 
 print_string:
     call string_length
-    mov rdx, rax    ; param rdx = string size in bytes
-    mov rax, 1      ; param rax = syscall number
-    mov rsi, rdi    ; param rsi = string
-    mov rdi, 1      ; param rdi = descriptor (stdout nesse caso == 1)
+    mov rdx, rax    ; param rdx = tamanho da string em bytes
+    mov rax, 1      ; param rax = número da syscall
+    mov rsi, rdi    ; param rsi = string que ira ser printada
+    mov rdi, 1      ; param rdi = descritor (stdout nesse caso, então 1)
 
     syscall
     ret
 
 print_char:
-    mov rdx, 1      ; param rdx = char size (1 byte)
-    mov rax, 1      ; param rax = syscall number
+    mov rdx, 1      ; param rdx = tamanho do char (1 byte)
+    mov rax, 1      ; param rax = número da syscall
     mov rsi, rdi    ; param rsi = inputted char
-    mov rdi, 1      ; param rdi = descriptor (stdout == 1)
+    mov rdi, 1      ; param rdi = descritor (stdout == 1)
 
     syscall
     ret
 
 print_newline:
-    mov rdi, newline ; param rdi = \n or ascii 10 or 0xA
+    mov rdi, newline ; param rdi = o que vai ser printado
     call print_char
 
     ret
 
 print_uint:
-    ;rdi(1rst arg) should contain 8byte uint
-    mov rax, rdi    ; rax is dividend
-    mov rcx, 10     ; decimal base (divisor)
-    mov rsi, rsp    ; rsi now points to stacks top
-    push 0          ; null terminator for strings end. 1 byte of 8
-    dec rsi         ; pointing to the last char before 0 null
-    sub rsp, 16     ; adding +16 bytes (total of 24b) for space ((null + 7 bytes) + 16) (space for unsigned long and a null terminator)
+    ;rdi(primeiro parametro) deve conter um inteiro não assinado que pode ser até um 24 bytes (unsigned long)
+    mov rax, rdi    ; rax é o dividendo
+    mov rcx, 10     ; base decimal (divisor)
+    mov rsi, rsp    ; rsi agora aponta pro topo da pilha
+    push 0          ; adiciona um terminador nulo na pilha (1 byte de 8)
+    dec rsi         ; decrementa o rsi e passa apontar para o último char antes do terminador nulo
+    sub rsp, 16     ; adiciona +16 bytes (total de 24 (unsigned long)) ((null + 7 bytes) + 16 bytes)
 
 
 .print_uint_loop:  
-    cmp rax, 0      ; this loop will continue until rax content (dividend) / 10 (rcx) == 0
-    je .print_uint_end
-    xor rdx, rdx    ; cleaning rdx
-    div rcx         ; this divides value in RDX:RAX format,
-                    ; where RAX receives the quocient division
-                    ; and RDX receives the remainder
-    add rdx, 48     ; this converts RDX to ascii char. (48 = number 0 in ascii)
-    dec rsi         ; points to next space in memory
-    mov byte[rsi], dl ; writing the lower byte at RDX into the stack
+    cmp rax, 0      
+    je .print_uint_end  ; esse loop vai continuar até o conteúdo de rax (dividendo) por 10 == 0
+    xor rdx, rdx    ; limpa rdx
+    div rcx         ; divide rax por rcx e armazena o valor no formato RDX:RAX, onde
+                    ; RAX é o quociente da divisão 
+                    ; e RDX recebe o resto da divisão
+    add rdx, 48     ; converte o rdx para ascii, pois o decimal 48 é 0 em ascii
+    dec rsi         ; decrementa rsi para apontar para o próximo espaço vago na memória
+    mov byte[rsi], dl ; escreve o menor byte de rdx (dl) na pilha
     jmp .print_uint_loop
 
 .print_uint_end:
     mov rdi, rsi
     call print_string
-    add rsp, 24 ;getting back rsp to stack top
+    add rsp, 24 ; voltando rsp ao topo da pilha
 
     ret
 
 print_int:
-    ; rdi (1st param) should have a 8 byte integer
+    ; rdi (primeiro parametro) deve conter um inteiro 8 bytes
     mov rsi, rdi
     sar rsi, 63     ; move o bit mais significativo (identificador para negativo em complemento de dois) para a primeira posição
     cmp sil, 0xFF   ; compara os 8 bytes menos significativos de rsi com 0xFF, 
