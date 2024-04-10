@@ -7,7 +7,8 @@
 ;rax armazena o valor do retorno de uma rotina
 
 section .data
-new_line: db 10;
+newline: db 0x0A ; ascii 10 ou 0x0A == \n
+minus_sign: db 0x2D ; ascii 45 ou 0x2D == -
 
 section .text
 
@@ -50,7 +51,7 @@ print_char:
     ret
 
 print_newline:
-    mov rdi, new_line ; param rdi = \n or ascii 10 or 0xA
+    mov rdi, newline ; param rdi = \n or ascii 10 or 0xA
     call print_char
 
     ret
@@ -81,6 +82,22 @@ print_uint:
     mov rdi, rsi
     call print_string
     add rsp, 24 ;getting back rsp to stack top
+
+    ret
+
+print_int:
+    ; rdi (1st param) should have a 8 byte integer
+    mov rsi, rdi
+    sar rsi, 63     ; move o bit mais significativo (identificador para negativo em complemento de dois) para a primeira posição
+    cmp sil, 0xFF   ; compara os 8 bytes menos significativos de rsi com 0xFF, 
+                    ; se for igual quer dizer que é negativo (orquestrado pela instrução acima)
+    jne print_uint  ; se não for negativo == pula pra função de printar unsigned int
+    push rdi        ; registrador caller-saved
+    mov rdi, minus_sign   
+    call print_char
+    pop rdi         ; recuperando registrador caller-saved
+    neg rdi         ; nega os bits de rdi e adiciona 1
+    call print_uint
 
     ret
 
