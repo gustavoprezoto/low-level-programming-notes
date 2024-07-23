@@ -2,7 +2,7 @@
 ;ordem dos parametros de um rotina: rdi, rsi, rdx, rcx, r8 e r9
 ;callee saved: rbx, rbp, rsp, r12-r15 (pela rotina) - se houver necessidade
 ;caller saved: others (por quem chama a rotina) - se houver necessidade
-;syscall args: rdi, rsi, rdx, r10, r8 and r9
+;syscall args: rdi, rsi, rdx, r10, r8 and r9 (unix like)
 ;numero da syscall: rax 
 ;rax armazena o valor do retorno de uma rotina
 
@@ -101,7 +101,69 @@ print_int:
 
     ret
 
+read_char:
+    push 0          ; salva 8 bytes na pilha
+    xor rax, rax    ; zera rax. param rax = Syscall read é 0 
+    xor rdi, rdi    ; param rdi = descritor (stdin é 0)
+    mov rsi, rsp    ; onde será gravado o char inserido pelo usuário
+                    ; nesse caso será no topo da pilha onde reservamos 8 bytes anteriormente
+    mov rdx, 1      ; lê somente 1 byte
+    syscall
+
+    pop rax
+    ret
+
+read_word:	
+    ret
     
+string_copy:
+	; rdi = string
+	; rsi = ponteiro para o buffer
+	; rdx = tamanho do buffer
+	push rdi
+	push rsi
+	push rdx
+	call string_length
+	pop rdx
+	pop rsi
+	pop rdi
+	
+	cmp rax, rdx 			; compara o tamanho devolvido por string_lenght com o tamanho do buffer
+	jae .overflow			; se for igual ou maior, pula pra .overflow
+	
+	push rsi 	 			; salva na stack o endereço para o buffer copiado
+	
+		.copying_loop: 		; loop onde cada caractere é copiado para o buffer de destino
+		mov dl, byte[rdi]
+		mov byte[rsi], dl
+		inc rdi
+		inc rsi
+		test dl, dl
+		jnz .copying_loop
+	
+	pop rax
+	ret
+	
+	.overflow:
+	xor rax, rax
+	ret
+	
+string_equals:
+	;rdi = primeira string
+	;rsi = segunda string
+	mov al, byte[rdi] ; move o conteúdo do byte de rdi para o al(menor parte de rax)
+	cmp al, byte[rsi] ; compara o conteúdo de al com o byte atual do rsi
+	jne .not_equals   ; se a string não for igual
+	inc rdi			  ; incrementa um byte do rdi pra continuar o loop de validação de caractere (ex 0x1001 -> 0x1002)
+	inc rsi			  ; mesma coisa ^ 
+	test al, al       ; testa o al pra ver se não é \0 (terminador nulo)
+	jnz string_equals ; se o registrador EFLAGS não for zero ele volta pro inicio do procedimento
+	mov rax, 1        ; se for zero/terminador nulo ele retorna 1 (strings iguais) no rax
+	ret
+	
+	.not_equals:
+	xor rax, rax      ; retorna 0 (strings diferentes) no rax
+	ret
 
 
 
