@@ -1,0 +1,49 @@
+23 - São as partes do registrador rax. 
+24 - r9, r9d, r9w, r9b
+25 - instruções push e pop. Envolve o ponteiro da pilha e registrador rsp.
+26 - Respostas:
+	mov [rax], 0 - correto. Move o valor 0 para o endereço de memória contido em rax
+	cmp [rdx], bl - correta. Compara o valor que rdx aponta com o valor registrador de bl.
+	mov bh, bl - Incorreta. Tenta mover o valor de bl (parte inferior de bx) para a parte superior de bx (bh)
+	mov al, al - Correta. Move o valor do registrador al pra ele mesmo.
+	add bpl, 9 - Correta. Adiciona 9 ao valor que rbx tem (offset de 9)
+	mov r8d, r9d - Correta. move o valor de r9d para r8d.
+	mov r3b, al - Incorreta. Registrador r3b não existe.
+	mov r9w, r2d - Incorreta. Registrador r2d não existe.
+	mov r9, [r9 + 8*rax] - correta. Usa aritmética de ponteiros para trabalhar com r9, porém o endereço de memória [r9 + 8*rax] deve existir.
+	as últimas duas são inválidas pois o registrador r7 não existe.
+27 - Registradores callee-saved (registradores salvos pela rotina): rbx, rbp, rsp, r12-r15
+28 - Registradores caller-saved (registradores salvos por quem chama a rotina): rax, rcx, rdx, rsi, rdi
+29 - RIP: é um instruction pointer, ou seja, ela aponta pra proxima instrução a ser executada.
+30 - SF - sign flag é um bit do registrador FLAGS que registra se o resultado da operação matemática executada é negativo
+31 - ZF - zero flag é um bit do registrador FLAGS que registra se o resultado da operação matemática executada é zero
+32 - Respostas:
+	sar - 
+	shr -
+	xor - comparação lógica de ou exclusivo. Importante lembrar que setta somente o primeiro operando como a resposta de xor. Muito utilizado para zerar registradores.
+	jmp - realiza saltos para outras posições do código sem depender de flags.
+	jmp, ja, je e outras - realiza saltos para outras posições do código dependendo da flag q será analisada. Ex: je foo - se a flag zf estiver ativa o código ira saltar para foo 
+	cmp - compara os valores dos dois argumentos e setta no registrador FLAGS o resultado da mesma 
+	mov - move o valor do segundo argumento para o primeiro. Ex: mov rax, 10
+	inc,dec - 
+	add - instrução que soma um valor a um operando, ex: add rbx, 9. Adiciona 9 ao rbx.
+	imul, mul -
+	sub - instrução que subtrai um valor a um operando, ex: sub rbx, 9. Subtrai 9 de rbx.
+	idiv, div -
+	call - Similar ao jmp, porém realiza uma chamada a uma rotina que pode ter um valor de retorno (similar a uma chamada de uma função em C.) que é armazenado em rax.  
+	ret - Instrução que dita o fim de uma rotina.
+	push, pop - Insere e remove elementos da pilha.
+33 - Label é um identificador que aponta para uma rotina do código. Elas podem ser númericas (0-9) ou strings, sempre seguidas de :. 
+34 - fazemos uma comparação pra ver se o numero está abaixo do limite inferior e uma do limite superior, depois de cada checagem fazmos uma instrução de jump condicional caso não seja igual o esperado.
+35 - ja e jb são usados para numeros inteiros sem sinal e jg e jl são usados para números inteiros com sinal.
+36 - São a mesma coisa, ambos verificam se a zf está settada como 1.
+37 - Podemos armazenar o valor de rax e fazer um xor com 0. 
+38 - é um número que um programa retorna para informar se foi executado com sucesso ou ocorreu algum erro.
+39 - utilizando instruções de multiplicação (como imul, mul, imulq ou mulq) dependem do conteúdo inputtado (signed ou não signed).
+40 - 
+	neg rax
+	cmovl rax, 1 ; conditional mov if less
+41 - big endian os bytes significativos aparecem primeiro, já little endian os bytes menos significativos aparecem primeiro
+42 - enderençamento baseado em registro de deslocamento. Podemos comparar esse tipo de deslocamento com uma aritmética de ponteiros em C.
+43 - no rótulo _start: de um binário asm.
+44 - 66.
